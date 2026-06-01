@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PRONTO - Molécula de Cafeína Animada</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #121212; /* Fondo oscuro como en la imagen */
+            font-family: sans-serif;
+        }
+
+        #canvas-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        #coming-soon-text {
+            position: absolute;
+            bottom: 12%;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            color: #ffffff;
+            font-size: 4rem;
+            font-weight: bold;
+            letter-spacing: 0.2em;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            opacity: 0;
+            animation: fadeIn 2s ease-in-out 1s forwards, pulse 3s infinite 3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes pulse {
+            0% { transform: translateX(-50%) scale(1); }
+            50% { transform: translateX(-50%) scale(1.05); }
+            100% { transform: translateX(-50%) scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <div id="canvas-container"></div>
+    <h1 id="coming-soon-text">MUY PRONTO</h1>
+
+    <script>
+        // Configuración de la escena de Three.js
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+        // Cámara
+        camera.position.z = 12;
+
+        // Cargar la textura de la imagen proporcionada
+        const textureLoader = new THREE.TextureLoader();
+        const moleculeTexture = textureLoader.load('assets/img/cafeina-02.png');
+
+        // Crear un plano para mostrar la imagen (proporción 16:9 aproximada)
+        const geometry = new THREE.PlaneGeometry(16, 9); 
+        const material = new THREE.MeshBasicMaterial({ 
+            map: moleculeTexture, 
+            transparent: true,
+            blending: THREE.AdditiveBlending, // Elimina el fondo oscuro de la imagen, resaltando lo blanco
+            side: THREE.DoubleSide
+        });
+        
+        const imagePlane = new THREE.Mesh(geometry, material);
+        imagePlane.position.y = 1.5;
+        scene.add(imagePlane);
+
+        // Animación
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // Efecto de flotación suave (arriba y abajo)
+            imagePlane.position.y = 1.5 + Math.sin(Date.now() * 0.0015) * 0.5;
+            
+            // Rotación sutil en 3D para darle profundidad a la imagen 2D
+            imagePlane.rotation.y = Math.sin(Date.now() * 0.001) * 0.15;
+            imagePlane.rotation.z = Math.sin(Date.now() * 0.0008) * 0.05;
+
+            renderer.render(scene, camera);
+        }
+
+        animate();
+
+        // Manejo del redimensionamiento de la ventana
+        window.addEventListener('resize', onWindowResize, false);
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+    </script>
+</body>
+</html>
